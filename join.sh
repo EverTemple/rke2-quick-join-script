@@ -9,10 +9,7 @@ fi
 MASTER_SVR_IP="$IP"
 MASTER_SVR_PORT="$P"
 TOKEN="$T"
-SERVER_TYPE="$TYPE"
-
-# Get user input
-read -p "Enter the node type (server/agent): " NODE_TYPE
+NODE_TYPE="$TYPE"
 
 # Get the necessary packages and updates
 sudo apt-get update && sudo apt-get install -y curl wget git net-tools unzip apparmor-utils ca-certificates cloud-init cloud-guest-utils cloud-image-utils cloud-utils cloud-initramfs-growroot open-iscsi openssh-server open-vm-tools nfs-common
