@@ -1,5 +1,5 @@
 # rke2-quick-join-script
-Quickly join a server/agent into a RKE2 cluster.
+Quickly update the packages, setup necessary packages, as well as join a server/agent node into a RKE2 cluster.
 
 ## Usage
 Download to your machine using curl. Update the variables accordingly.
