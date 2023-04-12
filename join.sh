@@ -9,6 +9,7 @@ fi
 MASTER_SVR_IP="$IP"
 MASTER_SVR_PORT="$P"
 TOKEN="$T"
+SERVER_TYPE="$TYPE"
 
 # Get user input
 read -p "Enter the node type (server/agent): " NODE_TYPE
