@@ -14,3 +14,6 @@ Download to your machine using curl. Update the variables accordingly.
 ```bash
 curl -o- https://raw.githubusercontent.com/EverTemple/rke2-quick-join-script/master/join.sh | env T="$TOKEN" IP="$MASTER_NODE_IP" P="$MASTER_NODE_PORT" TYPE="$SERVER_TYPE" bash -
 ```
+
+## Disclaimer
+Only tested it on Ubuntu 22.04.2 LTS. I use it for joining new servers myself, but I'm not responsible for any damage it may cause.
