@@ -5,7 +5,10 @@ Quickly update the packages, setup necessary packages, as well as join a server/
 Download to your machine using curl. Update the variables accordingly.
 
 ```bash
-curl -o- https://raw.githubusercontent.com/EverTemple/rke2-quick-join-script/master/join.sh
+cd /tmp
+curl -O https://raw.githubusercontent.com/EverTemple/rke2-quick-join-script/master/join.sh
+chmod +x join.sh
+sudo ./join.sh
 ```
 
 ## Disclaimer
