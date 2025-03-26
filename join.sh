@@ -29,7 +29,7 @@ case "$NODE_CHOICE" in
         ;;
 esac
 
-# For joining nodes (server or agent), prompt for additional details.
+# For joining nodes (server or agent), prompt for additional details
 if [[ "$NODE_TYPE" == "server" || "$NODE_TYPE" == "agent" ]]; then
     read -p "Enter MASTER_SVR_IP: " MASTER_SVR_IP
     read -p "Enter MASTER_SVR_PORT [default: 9345]: " MASTER_SVR_PORT
@@ -42,6 +42,17 @@ if [[ "$NODE_TYPE" == "server" || "$NODE_TYPE" == "agent" ]]; then
     fi
 fi
 
+# Prompt for optional tls-san entries
+echo ""
+echo "Optional: Enter tls-san entries (e.g. domain names or IPs)"
+echo "Press Enter on an empty line when you're done."
+TLS_SANS=()
+while true; do
+    read -p "tls-san: " SAN
+    [[ -z "$SAN" ]] && break
+    TLS_SANS+=("$SAN")
+done
+
 # Install necessary packages
 apt-get update && apt-get install -y \
     curl wget git net-tools unzip apparmor-utils \
@@ -52,13 +63,25 @@ apt-get update && apt-get install -y \
 # Optional: perform a distribution upgrade
 apt-get dist-upgrade -y
 
-# If joining a cluster, create the RKE2 configuration file
+# Prepare RKE2 config
+mkdir -p /etc/rancher/rke2/
+CONFIG_FILE="/etc/rancher/rke2/config.yaml"
+
+# Start fresh
+> "$CONFIG_FILE"
+
+# For joining nodes, write server and token
 if [[ "$NODE_TYPE" == "server" || "$NODE_TYPE" == "agent" ]]; then
-    mkdir -p /etc/rancher/rke2/
-    cat <<EOF > /etc/rancher/rke2/config.yaml
-server: https://${MASTER_SVR_IP}:${MASTER_SVR_PORT}
-token: ${TOKEN}
-EOF
+    echo "server: https://${MASTER_SVR_IP}:${MASTER_SVR_PORT}" >> "$CONFIG_FILE"
+    echo "token: ${TOKEN}" >> "$CONFIG_FILE"
+fi
+
+# Add tls-san entries if any
+if [[ ${#TLS_SANS[@]} -gt 0 ]]; then
+    echo "tls-san:" >> "$CONFIG_FILE"
+    for SAN in "${TLS_SANS[@]}"; do
+        echo "  - $SAN" >> "$CONFIG_FILE"
+    done
 fi
 
 # Install and start the appropriate RKE2 role
