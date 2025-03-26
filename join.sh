@@ -32,12 +32,12 @@ esac
 # For joining nodes (server or agent), prompt for additional details.
 if [[ "$NODE_TYPE" == "server" || "$NODE_TYPE" == "agent" ]]; then
     read -p "Enter MASTER_SVR_IP: " MASTER_SVR_IP
-    read -p "Enter MASTER_SVR_PORT: " MASTER_SVR_PORT
+    read -p "Enter MASTER_SVR_PORT [default: 9345]: " MASTER_SVR_PORT
+    MASTER_SVR_PORT=${MASTER_SVR_PORT:-9345}
     read -p "Enter TOKEN: " TOKEN
 
-    # Validate that all required values are provided
-    if [[ -z "$MASTER_SVR_IP" || -z "$MASTER_SVR_PORT" || -z "$TOKEN" ]]; then
-        echo "MASTER_SVR_IP, MASTER_SVR_PORT, and TOKEN are required for joining nodes."
+    if [[ -z "$MASTER_SVR_IP" || -z "$TOKEN" ]]; then
+        echo "MASTER_SVR_IP and TOKEN are required for joining nodes."
         exit 1
     fi
 fi
@@ -49,7 +49,7 @@ apt-get update && apt-get install -y \
     cloud-utils cloud-initramfs-growroot open-iscsi \
     openssh-server open-vm-tools nfs-common
 
-# Perform a distribution upgrade
+# Optional: perform a distribution upgrade
 apt-get dist-upgrade -y
 
 # If joining a cluster, create the RKE2 configuration file
@@ -67,6 +67,22 @@ case "$NODE_TYPE" in
         echo "Installing bootstrap RKE2 server..."
         curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=server sh -
         systemctl enable --now rke2-server.service
+
+        # Wait briefly for the token file to appear
+        echo "Waiting for node token to be generated..."
+        for i in {1..10}; do
+            if [[ -f /var/lib/rancher/rke2/server/node-token ]]; then
+                echo
+                echo "🎉 RKE2 server installed successfully!"
+                echo "🔑 Node token (copy this for other nodes):"
+                echo "----------------------------------------"
+                cat /var/lib/rancher/rke2/server/node-token
+                echo "----------------------------------------"
+                break
+            else
+                sleep 2
+            fi
+        done
         ;;
     server)
         echo "Installing joining RKE2 server..."
